@@ -46,7 +46,7 @@ def biexpo(t,A,B1,tau1,B2,tau2):
 nombre = '\nEG51% + FF49% --> LN2 --> RF\nf = 300 kHz\nIdc = [15, 14, 13, 12, 11, 10, 09 , 08, 07] dA\n'
 print('-'*50,nombre)
 
-# temps_150 = glob("data/*150*.csv",recursive=True)
+temps_150 = glob("data/*150*.csv",recursive=True)
 temps_140 = glob("data/*140*.csv",recursive=True)
 temps_130 = glob("data/*130*.csv",recursive=True)
 temps_120 = glob("data/*120*.csv",recursive=True)
@@ -78,7 +78,8 @@ for p in temps_080:
 for p in temps_070:
     print('  -',os.path.basename(p))
 #%%
-''' '''
+print('Informacion importante: ')
+print('CH1: Borde del criovial (temp_B)\nCH2: Centro del criovial (temp_C)') 
 Idc_values = [15,14,13,12,11,10.0, 9.0, 8.0, 7.5,7.0, 6.0, 5.0]
 H0=[(h*pendiente_HvsI+ordenada_HvsI)/1000 for h in Idc_values] 
 C = ['C0','C1','C2','C3','C4','C5','C6'] 
@@ -86,48 +87,50 @@ t,t_min=[],[]
 T,T_min=[],[]
 Indx_min,dT=[],[]
 
+#%% Repeticiones por separado
+fig1,(ax1,ax2,ax3) = plt.subplots(3,1,figsize=(9,9),sharex=True,constrained_layout=True)
 
+_,time_1,temp_B_1, temp_C_1 = lector_templog(temps_150[0])
+ax1.plot(time_1,temp_C_1,'C0-',label='Centro')#
+ax1.plot(time_1,temp_B_1,'C0-.',label='Borde')
 
+_,time_2,temp_B_2, temp_C_2 = lector_templog(temps_150[1])
+ax2.plot(time_2,temp_C_2,'C1-',label='Centro')#
+ax2.plot(time_2,temp_B_2,'C1-.',label='Borde')
 
-fig1,(ax1,ax2) = plt.subplots(2,1,figsize=(10,9),constrained_layout=True)
-ax1.set_title(f'H$_0$ = {H0[0]:.1f} kA/m',loc='left')
-ax2.set_title(f'H$_0$ = {H0[1]:.1f} kA/m',loc='left')
+_,time_3,temp_B_3, temp_C_3 = lector_templog(temps_150[2])
+ax3.plot(time_3,temp_C_3,'C2-',label='Centro')#
+ax3.plot(time_3,temp_B_3,'C2-.',label='Borde')
 
+ax3.set_xlim(0,200)
 
-for i,p in enumerate(temps_150):
-    _,time,temp_CH1, temp_CH2 = lector_templog(p)
-    t.append(time)
-    T.append(temp_CH1)
-    dT.append(np.gradient(temp_CH1,time))
-    indx_min=np.nonzero(temp_CH1==min(temp_CH1))[0]
-    t_min.append(time[indx_min])
-    T_min.append(temp_CH1[indx_min])
-    Indx_min.append(indx_min[0])
-    print(f'Temp minima = {temp_CH1[np.nonzero(temp_CH1==min(temp_CH1))][0]:.1f} C ({temp_CH1[np.nonzero(temp_CH1==min(temp_CH1))][0]+273:.1f} K) alcanzada en {time[np.nonzero(temp_CH1==min(temp_CH1))][0]:.1f} s')
-    ax1.plot(time,temp_CH1,c=C[i],label=f'{H0[i]:.1f} kA/m')
-    #ax1.plot(time,(np.gradient(temp_CH1,time)))
-
-for i,p in enumerate(temps_140):
-    _,time,temp_CH1,temp_CH2 = lector_templog(p)
-    t.append(time)
-    T.append(temp_CH1)
-    dT.append(np.gradient(temp_CH1,time))
-    indx_min=np.nonzero(temp_CH1==min(temp_CH1))[0]
-    t_min.append(time[indx_min])
-    T_min.append(temp_CH1[indx_min])
-    Indx_min.append(indx_min[0])
-    print(f'Temp minima = {temp_CH1[np.nonzero(temp_CH1==min(temp_CH1))][0]:.1f} C ({temp_CH1[np.nonzero(temp_CH1==min(temp_CH1))][0]+273:.1f} K) alcanzada en {time[np.nonzero(temp_CH1==min(temp_CH1))][0]:.1f} s')
-    ax2.plot(time,temp_CH1,c=C[i+3],label=f'{H0[i+3]:.1f} kA/m')
-    #ax2.plot(time,(np.gradient(temp_CH1,time)))
-
-for a in (ax1,ax2):
+for a in (ax1,ax2,ax3):
     a.grid()
-    a.legend(title='f = 300 kHz',loc='lower right',shadow=True,frameon=True,ncol=2)
+    a.legend(title=f'f = 300 kHz   H$_0$ = {H0[0]:.0f} kA/m',loc='lower right',shadow=True,frameon=True,ncol=2)
     a.set_ylabel('T (°C)')
-ax1.set_xlim(0,150)
-ax2.set_xlim(0,500)
-ax2.set_xlabel('t (s)')
+#ax1.set_xlim(0,150)
+#ax2.set_xlim(0,500)
+ax3.set_xlabel('t (s)')
+#%% Comparativa e/ centro y borde, diferencia de temperatura
 
+fig,(ax,ax2,ax3) = plt.subplots(3,1,figsize=(10,8),sharex=True,constrained_layout=True)
+ax.set_title('Centro',loc='left')
+ax2.set_title('Borde',loc='left')
+ax3.set_title(r'\Delta T',loc='left')
+for i,p in enumerate(temps_150):
+    _,time,temp_B, temp_C = lector_templog(p)
+    delta_CB = temp_C - temp_B
+    ax.plot(time,temp_C,'.-',label=i+1)
+    ax2.plot(time,temp_B,'.-',label=i+1)
+    ax3.plot(time,delta_CB,'.-',label=i+1)
+
+for a in (ax,ax2,ax3):
+    a.grid()
+    a.legend(title=f'f = 300 kHz   H$_0$ = {H0[0]:.0f} kA/m',loc='best',shadow=True,frameon=True,ncol=2)
+    a.set_ylabel('T (°C)')
+ax2.set_xlabel('t (s)')
+ax2.set_xlim(0,200)
+plt.suptitle(nombre)
 #%% Curvatura
 fig2,(ax,ax2,ax3) = plt.subplots(3,1,figsize=(10,10),constrained_layout=True)
 ax.set_title('Temp vs time',loc='left')
