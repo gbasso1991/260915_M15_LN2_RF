@@ -87,20 +87,29 @@ t,t_min=[],[]
 T,T_min=[],[]
 Indx_min,dT=[],[]
 
-#%% Repeticiones por separado
-fig1,(ax1,ax2,ax3) = plt.subplots(3,1,figsize=(9,9),sharex=True,constrained_layout=True)
+#%% idc = 150 dA 
+fig11,(ax1,ax2,ax3) = plt.subplots(3,1,figsize=(9,9),sharex=True,constrained_layout=True)
 
 _,time_1,temp_B_1, temp_C_1 = lector_templog(temps_150[0])
+delta_CB_1 = temp_C_1 - temp_B_1
+indx_max_DT_1 = np.nonzero(delta_CB_1==max(delta_CB_1))[0]
 ax1.plot(time_1,temp_C_1,'C0-',label='Centro')#
 ax1.plot(time_1,temp_B_1,'C0-.',label='Borde')
+ax1.vlines(time_1[indx_max_DT_1],temp_B_1[indx_max_DT_1],temp_C_1[indx_max_DT_1],color='C0',ls='--',label=f'ΔT max = {delta_CB_1[indx_max_DT_1][0]:.1f} °C')
 
 _,time_2,temp_B_2, temp_C_2 = lector_templog(temps_150[1])
+delta_CB_2 = temp_C_2 - temp_B_2
+indx_max_DT_2 = np.nonzero(delta_CB_2==max(delta_CB_2))[0]
 ax2.plot(time_2,temp_C_2,'C1-',label='Centro')#
 ax2.plot(time_2,temp_B_2,'C1-.',label='Borde')
+ax2.vlines(time_2[indx_max_DT_2],temp_B_2[indx_max_DT_2],temp_C_2[indx_max_DT_2],color='C1',ls='--',label=f'ΔT max = {delta_CB_2[indx_max_DT_2][0]:.1f} °C')
 
 _,time_3,temp_B_3, temp_C_3 = lector_templog(temps_150[2])
+delta_CB_3 = temp_C_3 - temp_B_3
+indx_max_DT_3 = np.nonzero(delta_CB_3==max(delta_CB_3))[0]
 ax3.plot(time_3,temp_C_3,'C2-',label='Centro')#
 ax3.plot(time_3,temp_B_3,'C2-.',label='Borde')
+ax3.vlines(time_3[indx_max_DT_3],temp_B_3[indx_max_DT_3],temp_C_3[indx_max_DT_3],color='C2',ls='--',label=f'ΔT max = {delta_CB_3[indx_max_DT_3][0]:.1f} °C')
 
 ax3.set_xlim(0,200)
 
@@ -111,18 +120,22 @@ for a in (ax1,ax2,ax3):
 #ax1.set_xlim(0,150)
 #ax2.set_xlim(0,500)
 ax3.set_xlabel('t (s)')
-#%% Comparativa e/ centro y borde, diferencia de temperatura
+plt.suptitle('EG51% + FF49% --> LN2 --> 300 kHz & 57 kA/m')
 
-fig,(ax,ax2,ax3) = plt.subplots(3,1,figsize=(10,8),sharex=True,constrained_layout=True)
+#% Comparativa e/ centro y borde, diferencia de temperatura
+fig21,(ax,ax2,ax3) = plt.subplots(3,1,figsize=(10,8),sharex=True,constrained_layout=True)
 ax.set_title('Centro',loc='left')
 ax2.set_title('Borde',loc='left')
-ax3.set_title(r'\Delta T',loc='left')
+ax3.set_title(r'$\Delta$ T',loc='left')
+
 for i,p in enumerate(temps_150):
     _,time,temp_B, temp_C = lector_templog(p)
     delta_CB = temp_C - temp_B
-    ax.plot(time,temp_C,'.-',label=i+1)
-    ax2.plot(time,temp_B,'.-',label=i+1)
-    ax3.plot(time,delta_CB,'.-',label=i+1)
+    ax.plot(time,temp_C,'-',label=i+1)
+    ax2.plot(time,temp_B,'-',label=i+1)
+    ax3.plot(time,delta_CB,'-',label=i+1)
+    indx_min=np.nonzero(temp_C==min(temp_C))[0]
+    print(f'Temp minima = {temp_C[np.nonzero(temp_C==min(temp_C))][0]:.1f} C ({temp_C[np.nonzero(temp_C==min(temp_C))][0]+273:.1f} K) alcanzada en {time[np.nonzero(temp_C==min(temp_C))][0]:.1f} s')
 
 for a in (ax,ax2,ax3):
     a.grid()
@@ -130,7 +143,146 @@ for a in (ax,ax2,ax3):
     a.set_ylabel('T (°C)')
 ax2.set_xlabel('t (s)')
 ax2.set_xlim(0,200)
-plt.suptitle(nombre)
+plt.suptitle('EG51% + FF49% --> LN2 --> 300 kHz & 57 kA/m')
+
+#%% 140 dA = 53.3 kA/m
+fig12,(ax1,ax2) = plt.subplots(2,1,figsize=(9,6),sharex=True,constrained_layout=True)
+_,time_1,temp_B_1, temp_C_1 = lector_templog(temps_140[0])
+delta_CB_1 = temp_C_1 - temp_B_1
+indx_max_DT_1 = np.nonzero(delta_CB_1==max(delta_CB_1))[0]
+ax1.plot(time_1,temp_C_1,'C0-',label='Centro')#
+ax1.plot(time_1,temp_B_1,'C0-.',label='Borde')
+ax1.vlines(time_1[indx_max_DT_1],temp_B_1[indx_max_DT_1],temp_C_1[indx_max_DT_1],color='C0',ls='--',label=f'ΔT max = {delta_CB_1[indx_max_DT_1][0]:.1f} °C')
+
+_,time_2,temp_B_2, temp_C_2 = lector_templog(temps_140[1])
+delta_CB_2 = temp_C_2 - temp_B_2
+indx_max_DT_2 = np.nonzero(delta_CB_2==max(delta_CB_2))[0]
+ax2.plot(time_2,temp_C_2,'C1-',label='Centro')#
+ax2.plot(time_2,temp_B_2,'C1-.',label='Borde')
+ax2.vlines(time_2[indx_max_DT_2],temp_B_2[indx_max_DT_2],temp_C_2[indx_max_DT_2],color='C1',ls='--',label=f'ΔT max = {delta_CB_2[indx_max_DT_2][0]:.1f} °C')
+
+# _,time_3,temp_B_3, temp_C_3 = lector_templog(temps_140[2])
+
+# delta_CB_3 = temp_C_3 - temp_B_3
+# indx_max_DT_3 = np.nonzero(delta_CB_3==max(delta_CB_3))[0]
+# ax3.plot(time_3,temp_C_3,'C2-',label='Centro')#
+# ax3.plot(time_3,temp_B_3,'C2-.',label='Borde')
+# ax3.vlines(time_3[indx_max_DT_3],temp_B_3[indx_max_DT_3],temp_C_3[indx_max_DT_3],color='C2',ls='--',label=f'ΔT max = {delta_CB_3[indx_max_DT_3][0]:.1f} °C')
+
+ax2.set_xlim(0,175)
+
+for a in (ax1,ax2):
+    a.grid()
+    a.legend(title=f'f = 300 kHz   H$_0$ = {H0[0]:.0f} kA/m',loc='lower right',shadow=True,frameon=True,ncol=2)
+    a.set_ylabel('T (°C)')
+#ax1.set_xlim(0,140)
+#ax2.set_xlim(0,500)
+ax2.set_xlabel('t (s)')
+plt.suptitle('EG51% + FF49% --> LN2 --> 300 kHz & 53.3 kA/m')
+
+#% Comparativa e/ centro y borde, diferencia de temperatura
+fig22,(ax,ax2,ax3) = plt.subplots(3,1,figsize=(9,9),sharex=True,constrained_layout=True)
+ax.set_title('Centro',loc='left')
+ax2.set_title('Borde',loc='left')
+ax3.set_title(r'$\Delta$ T',loc='left')
+
+for i,p in enumerate(temps_140):
+    _,time,temp_B, temp_C = lector_templog(p)
+    delta_CB = temp_C - temp_B
+    ax.plot(time,temp_C,'-',label=i+1)
+    ax2.plot(time,temp_B,'-',label=i+1)
+    ax3.plot(time,delta_CB,'-',label=i+1)
+    indx_min=np.nonzero(temp_C==min(temp_C))[0]
+    print(f'Temp minima = {temp_C[np.nonzero(temp_C==min(temp_C))][0]:.1f} C ({temp_C[np.nonzero(temp_C==min(temp_C))][0]+273:.1f} K) alcanzada en {time[np.nonzero(temp_C==min(temp_C))][0]:.1f} s')
+
+for a in (ax,ax2,ax3):
+    a.grid()
+    a.legend(title=f'f = 300 kHz   H$_0$ = {H0[0]:.0f} kA/m',loc='best',shadow=True,frameon=True,ncol=2)
+    a.set_ylabel('T (°C)')
+ax2.set_xlabel('t (s)')
+ax2.set_xlim(0,175)
+plt.suptitle('EG51% + FF49% --> LN2 --> 300 kHz & 53.3 kA/m')
+
+#%% 130 dA = 49.6 kA/m 
+fig13,(ax1,ax2) = plt.subplots(2,1,figsize=(9,6),sharex=True,constrained_layout=True)
+_,time_1,temp_B_1, temp_C_1 = lector_templog(temps_130[0])
+delta_CB_1 = temp_C_1 - temp_B_1
+indx_max_DT_1 = np.nonzero(delta_CB_1==max(delta_CB_1))[0]
+ax1.plot(time_1,temp_C_1,'C0-',label='Centro')#
+ax1.plot(time_1,temp_B_1,'C0-.',label='Borde')
+ax1.vlines(time_1[indx_max_DT_1],temp_B_1[indx_max_DT_1],temp_C_1[indx_max_DT_1],color='C0',ls='--',label=f'ΔT max = {delta_CB_1[indx_max_DT_1][0]:.1f} °C')
+
+_,time_2,temp_B_2, temp_C_2 = lector_templog(temps_130[1])
+delta_CB_2 = temp_C_2 - temp_B_2
+indx_max_DT_2 = np.nonzero(delta_CB_2==max(delta_CB_2))[0]
+ax2.plot(time_2,temp_C_2,'C1-',label='Centro')#
+ax2.plot(time_2,temp_B_2,'C1-.',label='Borde')
+ax2.vlines(time_2[indx_max_DT_2],temp_B_2[indx_max_DT_2],temp_C_2[indx_max_DT_2],color='C1',ls='--',label=f'ΔT max = {delta_CB_2[indx_max_DT_2][0]:.1f} °C')
+
+# _,time_3,temp_B_3, temp_C_3 = lector_templog(temps_130[2])
+
+# delta_CB_3 = temp_C_3 - temp_B_3
+# indx_max_DT_3 = np.nonzero(delta_CB_3==max(delta_CB_3))[0]
+# ax3.plot(time_3,temp_C_3,'C2-',label='Centro')#
+# ax3.plot(time_3,temp_B_3,'C2-.',label='Borde')
+# ax3.vlines(time_3[indx_max_DT_3],temp_B_3[indx_max_DT_3],temp_C_3[indx_max_DT_3],color='C2',ls='--',label=f'ΔT max = {delta_CB_3[indx_max_DT_3][0]:.1f} °C')
+
+ax2.set_xlim(0,200)
+
+for a in (ax1,ax2):
+    a.grid()
+    a.legend(title=f'f = 300 kHz   H$_0$ = {H0[0]:.0f} kA/m',loc='lower right',shadow=True,frameon=True,ncol=2)
+    a.set_ylabel('T (°C)')
+#ax1.set_xlim(0,130)
+#ax2.set_xlim(0,500)
+ax2.set_xlabel('t (s)')
+plt.suptitle('EG51% + FF49% --> LN2 --> 300 kHz & 49.6 kA/m')
+
+#% Comparativa e/ centro y borde, diferencia de temperatura
+fig23,(ax,ax2,ax3) = plt.subplots(3,1,figsize=(9,9),sharex=True,constrained_layout=True)
+ax.set_title('Centro',loc='left')
+ax2.set_title('Borde',loc='left')
+ax3.set_title(r'$\Delta$ T',loc='left')
+
+for i,p in enumerate(temps_130):
+    _,time,temp_B, temp_C = lector_templog(p)
+    delta_CB = temp_C - temp_B
+    ax.plot(time,temp_C,'-',label=i+1)
+    ax2.plot(time,temp_B,'-',label=i+1)
+    ax3.plot(time,delta_CB,'-',label=i+1)
+    indx_min=np.nonzero(temp_C==min(temp_C))[0]
+    print(f'Temp minima = {temp_C[np.nonzero(temp_C==min(temp_C))][0]:.1f} C ({temp_C[np.nonzero(temp_C==min(temp_C))][0]+273:.1f} K) alcanzada en {time[np.nonzero(temp_C==min(temp_C))][0]:.1f} s')
+
+for a in (ax,ax2,ax3):
+    a.grid()
+    a.legend(title=f'f = 300 kHz   H$_0$ = {H0[0]:.0f} kA/m',loc='best',shadow=True,frameon=True,ncol=2)
+    a.set_ylabel('T (°C)')
+ax2.set_xlabel('t (s)')
+ax2.set_xlim(0,200)
+plt.suptitle('EG51% + FF49% --> LN2 --> 300 kHz & 49.6 kA/m')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #%% Curvatura
 fig2,(ax,ax2,ax3) = plt.subplots(3,1,figsize=(10,10),constrained_layout=True)
 ax.set_title('Temp vs time',loc='left')
