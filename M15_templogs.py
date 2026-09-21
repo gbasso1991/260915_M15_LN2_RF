@@ -549,29 +549,93 @@ for a in (ax,ax2,ax3):
 ax3.set_xlabel('t (s)')
 ax3.set_xlim(0,315)
 plt.suptitle('EG51% + FF49% --> LN2 --> 300 kHz & 070 dA')
+#%% Comparo mejor enrfriamiento/calentamiento para cada campo
+labels = [f'{H0[i]:.1f} kA/m' for i in range(len(H0))]
 
+def separa_enfriamiento_calentamiento(t, T):
+    i_min = np.argmin(T)
+    t_min = t[i_min]
 
-#%% Salvo figuras
+    # Enfriamiento
+    t_enf = t[:i_min + 1] - t_min
+    T_enf = T[:i_min + 1]
 
-fig11.savefig('EG51_FF49_LN2_300kHz_150dA_1',dpi=300)
-fig12.savefig('EG51_FF49_LN2_300kHz_150dA_2',dpi=300)
-fig21.savefig('EG51_FF49_LN2_300kHz_140dA_1',dpi=300)
-fig22.savefig('EG51_FF49_LN2_300kHz_140dA_2',dpi=300)
-fig31.savefig('EG51_FF49_LN2_300kHz_130dA_1',dpi=300)
-fig32.savefig('EG51_FF49_LN2_300kHz_130dA_2',dpi=300)
-fig41.savefig('EG51_FF49_LN2_300kHz_120dA_1',dpi=300)
-fig42.savefig('EG51_FF49_LN2_300kHz_120dA_2',dpi=300)
-fig51.savefig('EG51_FF49_LN2_300kHz_110dA_1',dpi=300)
-fig52.savefig('EG51_FF49_LN2_300kHz_110dA_2',dpi=300)
-fig61.savefig('EG51_FF49_LN2_300kHz_100dA_1',dpi=300)
-fig62.savefig('EG51_FF49_LN2_300kHz_100dA_2',dpi=300)
-fig71.savefig('EG51_FF49_LN2_300kHz_090dA_1',dpi=300)
-fig72.savefig('EG51_FF49_LN2_300kHz_090dA_2',dpi=300)   
-fig81.savefig('EG51_FF49_LN2_300kHz_080dA_1',dpi=300)
-fig82.savefig('EG51_FF49_LN2_300kHz_080dA_2',dpi=300)
-fig91.savefig('EG51_FF49_LN2_300kHz_070dA_1',dpi=300)
-fig92.savefig('EG51_FF49_LN2_300kHz_070dA_2',dpi=300)
+    # Calentamiento
+    t_cal = t[i_min:] - t_min
+    T_cal = T[i_min:]
 
+    return (t_enf, T_enf), (t_cal, T_cal)
+
+#%% Enfriamiento Centro y Borde
+paths_300kHz = [temps_150[0],temps_140[0],temps_130[1],temps_120[1],temps_110[0],temps_100[2],temps_090[0],temps_080[0],temps_070[0]]
+
+fig_enf, (ax,bx)= plt.subplots(2,1,figsize=(9,6),constrained_layout=True,sharex=True)
+for i,p in enumerate(paths_300kHz):
+    _, time, temp_B, temp_C = lector_templog(p)
+
+    (t_enf_C, T_enf_C), _ = separa_enfriamiento_calentamiento(time, temp_C)
+    (t_enf_B, T_enf_B), _ = separa_enfriamiento_calentamiento(time, temp_B)
+
+    label = f'{H0[paths_300kHz.index(p)]:.1f}'
+
+    ax.plot(t_enf_C, T_enf_C, '-', label=labels[paths_300kHz.index(p)])
+
+    bx.plot(t_enf_B, T_enf_B, '-',label=labels[paths_300kHz.index(p)])
+
+ax.set_title('Centro',loc='left')
+bx.set_title('Borde',loc='left')
+
+bx.set_xlabel('t (s)')
+for a in (ax,bx):
+    a.grid()
+    a.legend(title=f'H$_0$ (kA/m)',loc='best',shadow=True,frameon=True,ncol=3)
+    a.set_ylabel('T (°C)')
+plt.suptitle('EG51% + FF49%\nEnfriamiento LN2')
+#%%Calentamiento Centro y Borde
+fig_cal, (ax,bx)= plt.subplots(2,1,figsize=(9,6),constrained_layout=True,sharex=True)
+for i,p in enumerate(paths_300kHz):
+    _, time, temp_B, temp_C = lector_templog(p)
+
+    _,(t_cal_C, T_cal_C) = separa_enfriamiento_calentamiento(time, temp_C)
+    _,(t_cal_B, T_cal_B) = separa_enfriamiento_calentamiento(time, temp_B)
+
+    ax.plot(t_cal_C, T_cal_C, '-', label=labels[paths_300kHz.index(p)])
+
+    bx.plot(t_cal_B, T_cal_B, '-',label=labels[paths_300kHz.index(p)])
+
+ax.set_title('Centro',loc='left')
+bx.set_title('Borde',loc='left')
+
+bx.set_xlabel('t (s)')
+bx.set_xlim(0,350)
+for a in (ax,bx):
+    a.grid()
+    a.legend(title=f'H$_0$ (kA/m)',loc='best',shadow=True,frameon=True,ncol=3)
+    a.set_ylabel('T (°C)')
+plt.suptitle('EG51% + FF49%\nCalentamiento RF')
+
+# %% Salvo figuras
+
+# fig11.savefig('EG51_FF49_LN2_300kHz_150dA_1',dpi=300)
+# fig12.savefig('EG51_FF49_LN2_300kHz_150dA_2',dpi=300)
+# fig21.savefig('EG51_FF49_LN2_300kHz_140dA_1',dpi=300)
+# fig22.savefig('EG51_FF49_LN2_300kHz_140dA_2',dpi=300)
+# fig31.savefig('EG51_FF49_LN2_300kHz_130dA_1',dpi=300)
+# fig32.savefig('EG51_FF49_LN2_300kHz_130dA_2',dpi=300)
+# fig41.savefig('EG51_FF49_LN2_300kHz_120dA_1',dpi=300)
+# fig42.savefig('EG51_FF49_LN2_300kHz_120dA_2',dpi=300)
+# fig51.savefig('EG51_FF49_LN2_300kHz_110dA_1',dpi=300)
+# fig52.savefig('EG51_FF49_LN2_300kHz_110dA_2',dpi=300)
+# fig61.savefig('EG51_FF49_LN2_300kHz_100dA_1',dpi=300)
+# fig62.savefig('EG51_FF49_LN2_300kHz_100dA_2',dpi=300)
+# fig71.savefig('EG51_FF49_LN2_300kHz_090dA_1',dpi=300)
+# fig72.savefig('EG51_FF49_LN2_300kHz_090dA_2',dpi=300)   
+# fig81.savefig('EG51_FF49_LN2_300kHz_080dA_1',dpi=300)
+# fig82.savefig('EG51_FF49_LN2_300kHz_080dA_2',dpi=300)
+# fig91.savefig('EG51_FF49_LN2_300kHz_070dA_1',dpi=300)
+# fig92.savefig('EG51_FF49_LN2_300kHz_070dA_2',dpi=300)
+fig_enf.savefig('EG51_FF49_LN2_300kHz_Enfriamiento',dpi=300)
+fig_cal.savefig('EG51_FF49_LN2_300kHz_Calentamiento',dpi=300)
 
 
 
@@ -585,7 +649,7 @@ ax.set_title('Temp vs time',loc='left')
 ax2.set_title('Curvatura vs Temp',loc='left')
 ax3.set_title('Curvatura vs Temp',loc='left')
 
-for i,p in enumerate(temps_500_EG51_FF49):
+for i,p in enumerate(paths_300kHz):
     _,time,temp,_ = lector_templog(p)
     indx_min = np.argmin(temp)
     indx_max = indx_min + np.argmax(temp[indx_min:])
