@@ -614,67 +614,33 @@ for a in (ax,bx):
     a.set_ylabel('T (°C)')
 plt.suptitle('EG51% + FF49%\nCalentamiento RF')
 
-# %% Salvo figuras
-
-# fig11.savefig('EG51_FF49_LN2_300kHz_150dA_1',dpi=300)
-# fig12.savefig('EG51_FF49_LN2_300kHz_150dA_2',dpi=300)
-# fig21.savefig('EG51_FF49_LN2_300kHz_140dA_1',dpi=300)
-# fig22.savefig('EG51_FF49_LN2_300kHz_140dA_2',dpi=300)
-# fig31.savefig('EG51_FF49_LN2_300kHz_130dA_1',dpi=300)
-# fig32.savefig('EG51_FF49_LN2_300kHz_130dA_2',dpi=300)
-# fig41.savefig('EG51_FF49_LN2_300kHz_120dA_1',dpi=300)
-# fig42.savefig('EG51_FF49_LN2_300kHz_120dA_2',dpi=300)
-# fig51.savefig('EG51_FF49_LN2_300kHz_110dA_1',dpi=300)
-# fig52.savefig('EG51_FF49_LN2_300kHz_110dA_2',dpi=300)
-# fig61.savefig('EG51_FF49_LN2_300kHz_100dA_1',dpi=300)
-# fig62.savefig('EG51_FF49_LN2_300kHz_100dA_2',dpi=300)
-# fig71.savefig('EG51_FF49_LN2_300kHz_090dA_1',dpi=300)
-# fig72.savefig('EG51_FF49_LN2_300kHz_090dA_2',dpi=300)   
-# fig81.savefig('EG51_FF49_LN2_300kHz_080dA_1',dpi=300)
-# fig82.savefig('EG51_FF49_LN2_300kHz_080dA_2',dpi=300)
-# fig91.savefig('EG51_FF49_LN2_300kHz_070dA_1',dpi=300)
-# fig92.savefig('EG51_FF49_LN2_300kHz_070dA_2',dpi=300)
-fig_enf.savefig('EG51_FF49_LN2_300kHz_Enfriamiento',dpi=300)
-fig_cal.savefig('EG51_FF49_LN2_300kHz_Calentamiento',dpi=300)
-
-
-
-
-
-
 
 #%% Curvatura
-fig2,(ax,ax2,ax3) = plt.subplots(3,1,figsize=(10,10),constrained_layout=True)
+fig1,(ax,ax2,ax3) = plt.subplots(3,1,figsize=(10,10),constrained_layout=True)
 ax.set_title('Temp vs time',loc='left')
 ax2.set_title('Curvatura vs Temp',loc='left')
 ax3.set_title('Curvatura vs Temp',loc='left')
 
 for i,p in enumerate(paths_300kHz):
-    _,time,temp,_ = lector_templog(p)
-    indx_min = np.argmin(temp)
-    indx_max = indx_min + np.argmax(temp[indx_min:])
-    print('\n',os.path.basename(p))
-    print(f'T min = {temp[indx_min]:.1f} C ({temp[indx_min]+273:.1f} K) alcanzada en {time[indx_min]:.1f} s')
-    print(f'T max = {temp[indx_max]:.1f} C ({temp[indx_max]+273:.1f} K) alcanzada en {time[indx_max]:.1f} s')
+    if i < 3:
+        _,time,temp,_ = lector_templog(p)
+        indx_min = np.argmin(temp)
+        indx_max = indx_min + np.argmax(temp[indx_min:])
+        print('\n',os.path.basename(p))
+        print(f'T min = {temp[indx_min]:.1f} C ({temp[indx_min]+273:.1f} K) alcanzada en {time[indx_min]:.1f} s')
+        print(f'T max = {temp[indx_max]:.1f} C ({temp[indx_max]+273:.1f} K) alcanzada en {time[indx_max]:.1f} s')
 
-    t_curv = time[indx_min:indx_max]
-    T_curv = temp[indx_min:indx_max]
-    # fig,ax=plt.subplots(figsize=(8,4),constrained_layout=True)
+        t_curv = time[indx_min:indx_max]
+        T_curv = temp[indx_min:indx_max]
+        
+        mask = (T_curv < 10)
+        T_curv = T_curv[mask]
+        t_curv = t_curv[mask]
+        _,_,curv = curvatura(T_curv)
 
-    # ax.plot(time,temp)
-    # ax.plot(t_curv,T_curv,'o')
-    # plt.show()
-
-    mask = (T_curv > -158) & (T_curv < 10)
-
-    T_curv = T_curv[mask]
-    t_curv = t_curv[mask]
-
-    _,_,curv = curvatura(T_curv)
-
-    ax.plot(t_curv-t_curv[0],T_curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
-    ax2.plot(T_curv,curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
-    ax3.plot(T_curv,curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
+        ax.plot(t_curv-t_curv[0],T_curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
+        ax2.plot(T_curv,curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
+        ax3.plot(T_curv,curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
 
 ax.axhspan(-150,-130,color='tab:red',alpha=0.2,zorder=-1)
 ax.axhspan(-75,-50,color='tab:purple',alpha=0.2,zorder=-1)
@@ -684,11 +650,9 @@ ax3.axvspan(-75,-50,color='tab:purple',alpha=0.2,zorder=-1)
 ax2.axhline(0.02,color='k',ls='--',lw=1,label='0.02')
 ax3.axhline(0.02,color='k',ls='--',lw=1,label='0.02')
 
-ax.set_xlim(0,300)
-ax.set_ylim(-160,0)
-ax2.set_ylim(0,0.08)
-ax3.set_ylim(0,0.08)
-ax2.set_xlim(-160,-100)
+ax2.set_ylim(0,0.05)
+ax3.set_ylim(0,0.05)
+ax2.set_xlim(-180,-100)
 ax3.set_xlim(-100,0)
 ax.set_xlabel('t (s)')
 ax.set_ylabel('T (°C)')
@@ -698,9 +662,112 @@ ax3.set_xlabel('T (°C)')
 
 for a in [ax,ax2,ax3]:
     a.grid()
-    a.legend(title='H$_0$ (kA/m)',ncol=2,shadow=True,frameon=True)
+    a.legend(title='H$_0$ (kA/m)',ncol=1,shadow=True,frameon=True)
+plt.suptitle('EG 51% FF 49%    LN2 --> RF\nf = 300 kHz   dA = [150, 140, 130]')
+plt.savefig('EG51_FF49_LN2_300kHz_Curvatura_1',dpi=300)
 
-plt.suptitle('EG 51% FF 49%    LN2 --> RF\nIdc = [100, 090, 080, 075, 070, 060, 050]  dA')
+#%% Ahora los otros campos
+fig2,(ax,ax2,ax3) = plt.subplots(3,1,figsize=(10,10),constrained_layout=True)
+ax.set_title('Temp vs time',loc='left')
+ax2.set_title('Curvatura vs Temp',loc='left')
+ax3.set_title('Curvatura vs Temp',loc='left')
+
+for i,p in enumerate(paths_300kHz):
+    if (i>2) & (i<6):
+        _,time,temp,_ = lector_templog(p)
+        indx_min = np.argmin(temp)
+        indx_max = indx_min + np.argmax(temp[indx_min:])
+        print('\n',os.path.basename(p))
+        print(f'T min = {temp[indx_min]:.1f} C ({temp[indx_min]+273:.1f} K) alcanzada en {time[indx_min]:.1f} s')
+        print(f'T max = {temp[indx_max]:.1f} C ({temp[indx_max]+273:.1f} K) alcanzada en {time[indx_max]:.1f} s')
+
+        t_curv = time[indx_min:indx_max]
+        T_curv = temp[indx_min:indx_max]
+        
+        mask = (T_curv < 10) & (T_curv > -170)
+        T_curv = T_curv[mask]
+        t_curv = t_curv[mask]
+        _,_,curv = curvatura(T_curv)
+
+        ax.plot(t_curv-t_curv[0],T_curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
+        ax2.plot(T_curv,curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
+        ax3.plot(T_curv,curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
+
+ax.axhspan(-160,-130,color='tab:red',alpha=0.2,zorder=-1)
+ax.axhspan(-75,-40,color='tab:purple',alpha=0.2,zorder=-1)
+ax2.axvspan(-160,-130,color='tab:red',alpha=0.2,zorder=-1)
+ax3.axvspan(-75,-40,color='tab:purple',alpha=0.2,zorder=-1)
+ax2.axhline(0.02,color='k',ls='--',lw=1,label='0.02')
+ax3.axhline(0.02,color='k',ls='--',lw=1,label='0.02')
+
+ax.set_xlim(0,)
+ax2.set_ylim(0,0.1)
+ax3.set_ylim(0,0.1)
+ax2.set_xlim(-170,-100)
+ax3.set_xlim(-100,0)
+ax.set_xlabel('t (s)')
+ax.set_ylabel('T (°C)')
+ax2.set_ylabel('Curvatura')
+ax3.set_ylabel('Curvatura')
+ax3.set_xlabel('T (°C)')
+
+for a in [ax,ax2,ax3]:
+    a.grid()
+    a.legend(title='H$_0$ (kA/m)',ncol=1,shadow=True,frameon=True)
+plt.suptitle('EG 51% FF 49%    LN2 --> RF\nf = 300 kHz   dA = [120, 110, 100]')
+plt.savefig('EG51_FF49_LN2_300kHz_Curvatura_2',dpi=300)
+#%%
+fig3,(ax,ax2,ax3) = plt.subplots(3,1,figsize=(10,10),constrained_layout=True)
+ax.set_title('Temp vs time',loc='left')
+ax2.set_title('Curvatura vs Temp',loc='left')
+ax3.set_title('Curvatura vs Temp',loc='left')
+
+for i,p in enumerate(paths_300kHz):
+    if (i>5) & (i<9):
+        _,time,temp,_ = lector_templog(p)
+        indx_min = np.argmin(temp)
+        indx_max = indx_min + np.argmax(temp[indx_min:])
+        print('\n',os.path.basename(p))
+        print(f'T min = {temp[indx_min]:.1f} C ({temp[indx_min]+273:.1f} K) alcanzada en {time[indx_min]:.1f} s')
+        print(f'T max = {temp[indx_max]:.1f} C ({temp[indx_max]+273:.1f} K) alcanzada en {time[indx_max]:.1f} s')
+
+        t_curv = time[indx_min:indx_max]
+        T_curv = temp[indx_min:indx_max]
+        
+        mask = (T_curv < 10) & (T_curv > -170)
+        T_curv = T_curv[mask]
+        t_curv = t_curv[mask]
+        _,_,curv = curvatura(T_curv)
+
+        ax.plot(t_curv-t_curv[0],T_curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
+        ax2.plot(T_curv,curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
+        ax3.plot(T_curv,curv,'.-',label=f'H$_0$ = {H0[i]:.1f}')
+
+ax.axhspan(-160,-130,color='tab:red',alpha=0.2,zorder=-1)
+ax.axhspan(-75,-40,color='tab:purple',alpha=0.2,zorder=-1)
+ax2.axvspan(-160,-130,color='tab:red',alpha=0.2,zorder=-1)
+ax3.axvspan(-75,-40,color='tab:purple',alpha=0.2,zorder=-1)
+ax2.axhline(0.02,color='k',ls='--',lw=1,label='0.02')
+ax3.axhline(0.02,color='k',ls='--',lw=1,label='0.02')
+
+ax.set_xlim(0,)
+ax2.set_ylim(0,0.1)
+ax3.set_ylim(0,0.1)
+ax2.set_xlim(-170,-100)
+ax3.set_xlim(-100,0)
+ax.set_xlabel('t (s)')
+ax.set_ylabel('T (°C)')
+ax2.set_ylabel('Curvatura')
+ax3.set_ylabel('Curvatura')
+ax3.set_xlabel('T (°C)')
+
+for a in [ax,ax2,ax3]:
+    a.grid()
+    a.legend(title='H$_0$ (kA/m)',ncol=1,shadow=True,frameon=True)
+plt.suptitle('EG 51% FF 49%    LN2 --> RF\nf = 300 kHz   dA = [090, 080, 070]')
+plt.savefig('EG51_FF49_LN2_300kHz_Curvatura_3',dpi=300)
+
+
 #%% Ajuste exponencial y bi-exponencial
 # Taux=[]
 # fits_exp=[]
@@ -832,13 +899,30 @@ plt.suptitle('EG 51% FF 49%    LN2 --> RF\nIdc = [100, 090, 080, 075, 070, 060, 
 # ax.set_xlim(-170,0)
 # ax.set_ylim(-10,10)
 #%% salvo figuras
-fig1.savefig('0_EG51_FF49_LN2_to_RF_100_090_080_075_070_060_050_000.png',dpi=300)
-fig2.savefig('1_EG51_FF49_templogs_curvatura.png',dpi=300)
+# %% Salvo figuras
 
-# fig2.savefig('2_EG55_FF45_LN2_to_RF_150_125_100.png',dpi=300)
-# fig23.savefig('2_EG55_FF45_grad_temp_150_125_100.png',dpi=300)
-# fig24.savefig('2_EG55_FF45_grad_temp_075_050_000.png',dpi=300)
-# fig25.savefig('2_EG55_FF45_templogs_curvatura.png',dpi=300)
-# fig26.savefig('2_EG55_FF45_templogs_residuos.png',dpi=300)
+fig11.savefig('EG51_FF49_LN2_300kHz_150dA_1',dpi=300)
+fig12.savefig('EG51_FF49_LN2_300kHz_150dA_2',dpi=300)
+fig21.savefig('EG51_FF49_LN2_300kHz_140dA_1',dpi=300)
+fig22.savefig('EG51_FF49_LN2_300kHz_140dA_2',dpi=300)
+fig31.savefig('EG51_FF49_LN2_300kHz_130dA_1',dpi=300)
+fig32.savefig('EG51_FF49_LN2_300kHz_130dA_2',dpi=300)
+fig41.savefig('EG51_FF49_LN2_300kHz_120dA_1',dpi=300)
+fig42.savefig('EG51_FF49_LN2_300kHz_120dA_2',dpi=300)
+fig51.savefig('EG51_FF49_LN2_300kHz_110dA_1',dpi=300)
+fig52.savefig('EG51_FF49_LN2_300kHz_110dA_2',dpi=300)
+fig61.savefig('EG51_FF49_LN2_300kHz_100dA_1',dpi=300)
+fig62.savefig('EG51_FF49_LN2_300kHz_100dA_2',dpi=300)
+fig71.savefig('EG51_FF49_LN2_300kHz_090dA_1',dpi=300)
+fig72.savefig('EG51_FF49_LN2_300kHz_090dA_2',dpi=300)   
+fig81.savefig('EG51_FF49_LN2_300kHz_080dA_1',dpi=300)
+fig82.savefig('EG51_FF49_LN2_300kHz_080dA_2',dpi=300)
+fig91.savefig('EG51_FF49_LN2_300kHz_070dA_1',dpi=300)
+fig92.savefig('EG51_FF49_LN2_300kHz_070dA_2',dpi=300)
+fig_enf.savefig('EG51_FF49_LN2_300kHz_Enfriamiento',dpi=300)
+fig_cal.savefig('EG51_FF49_LN2_300kHz_Calentamiento',dpi=300)
+fig1.savefig('EG51_FF49_curvatura_150_140_130.png',dpi=300)
+fig2.savefig('EG51_FF49_curvatura_120_110_100.png',dpi=300)
+fig3.savefig('EG51_FF49_curvatura_090_080_070.png',dpi=300)
 
 # %%
